@@ -442,9 +442,9 @@ var ListView = React.createClass({
         if (this.props.stickySectionHeadersEnabled) {
           stickySectionHeaderIndices.push(totalIndex++);
         }
-      }
 
-      dataSource.dirtySectionCleaned(sectionIdx);
+        dataSource.dirtySectionCleaned(sectionIdx);
+      }
 
       for (var rowIdx = 0; rowIdx < rowIDs.length; rowIdx++) {
         var rowID = rowIDs[rowIdx];
