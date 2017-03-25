@@ -620,7 +620,7 @@ var ListView = React.createClass({
     }
     if (updatedFrames) {
       updatedFrames.forEach((newFrame) => {
-        if (newFrame.height > 0 && newFrame.width > 0) {
+        if (!(newFrame.height == 0 && newFrame.width == 0 && newFrame.x == 0 && newFrame.y == 0)) {
           // If the row has not been rendered yet, newFrame width and height are 0
           // or else this will fail check with visible min and max.
           this._childFrames[newFrame.index] = merge(newFrame);
