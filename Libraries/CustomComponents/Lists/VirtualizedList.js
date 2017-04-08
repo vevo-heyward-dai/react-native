@@ -417,7 +417,7 @@ class VirtualizedList extends React.PureComponent<OptionalProps, Props, State> {
         onScroll: this._onScroll,
         onScrollBeginDrag: this._onScrollBeginDrag,
         ref: this._captureScrollRef,
-        scrollEventThrottle: 50, // TODO: Android support
+        scrollEventThrottle: this.props.scrollEventThrottle ? this.props.scrollEventThrottle : 50, // TODO: Android support
       },
       cells,
     );
