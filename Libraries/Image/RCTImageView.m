@@ -92,10 +92,10 @@ static NSDictionary *onLoadParamsForSource(RCTImageSource *source)
                selector:@selector(clearImageIfDetached)
                    name:UIApplicationDidReceiveMemoryWarningNotification
                  object:nil];
-    [center addObserver:self
+    /*[center addObserver:self
                selector:@selector(clearImageIfDetached)
                    name:UIApplicationDidEnterBackgroundNotification
-                 object:nil];
+                 object:nil];*/
   }
   return self;
 }
