@@ -13,6 +13,7 @@
 
 #import "RCTNetworking.h"
 
+
 @interface RCTHTTPRequestHandler () <NSURLSessionDataDelegate>
 
 @end
@@ -63,16 +64,24 @@ RCT_EXPORT_MODULE()
     callbackQueue.maxConcurrentOperationCount = 1;
     callbackQueue.underlyingQueue = [[_bridge networking] methodQueue];
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSMutableDictionary *allHeaders = [NSMutableDictionary dictionaryWithDictionary: configuration.HTTPAdditionalHeaders];
+    NSDictionary *vevoHeaders = [self additonalVevoHeaders];
+    NSArray *allKeys = [vevoHeaders allKeys];
+    for (NSString *key in allKeys) {
+      [allHeaders setObject:[vevoHeaders objectForKey:key] forKey:key];
+    }
+    configuration.HTTPAdditionalHeaders = allHeaders;
+    
     _session = [NSURLSession sessionWithConfiguration:configuration
                                              delegate:self
                                         delegateQueue:callbackQueue];
-
+    
     std::lock_guard<std::mutex> lock(_mutex);
     _delegates = [[NSMapTable alloc] initWithKeyOptions:NSPointerFunctionsStrongMemory
                                            valueOptions:NSPointerFunctionsStrongMemory
                                                capacity:0];
   }
-
+  
   NSURLSessionDataTask *task = [_session dataTaskWithRequest:request];
   {
     std::lock_guard<std::mutex> lock(_mutex);
@@ -89,6 +98,49 @@ RCT_EXPORT_MODULE()
     [_delegates removeObjectForKey:task];
   }
   [task cancel];
+}
+
+
+- (NSDictionary *)additonalVevoHeaders {
+  NSString *userAgent = @"";
+#if TARGET_OS_TV
+  userAgent = @"tvOS/";
+#elif TARGET_OS_IOS
+  userAgent = @"iOS/";
+#elif TARGET_OS_WATCH
+  userAgent = @"watchOS/";
+#elif TARGET_OS_MAC
+  userAgent = @"macOS/";
+#endif
+  NSString *osVersion = [[NSProcessInfo processInfo] operatingSystemVersionString];
+  userAgent = [userAgent stringByAppendingString:osVersion];
+  userAgent = [userAgent stringByAppendingString:@" Apple/"];
+  
+  NSString *vevoHeader = @"";
+#if TARGET_OS_TV
+  vevoHeader = @"tvOS/";
+#elif TARGET_OS_IOS
+  vevoHeader = @"iOS/";
+#elif TARGET_OS_WATCH
+  vevoHeader = @"watchOS/";
+#elif TARGET_OS_MAC
+  vevoHeader = @"macOS/";
+#endif
+  
+  NSString *vNumber = [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"];
+  vevoHeader = [vevoHeader stringByAppendingString:vNumber];
+  
+  if ([[NSUserDefaults standardUserDefaults] boolForKey:@"TestUserUsesStagingApi"]) {
+    vevoHeader = [vevoHeader stringByAppendingString:@".staging/"];
+  } else {
+    vevoHeader = [vevoHeader stringByAppendingString:@"/"];
+  }
+  
+  NSString *bNumber = [NSBundle mainBundle].infoDictionary[@"CFBundleVersion"];
+  vevoHeader = [vevoHeader stringByAppendingString:bNumber];
+  
+  NSDictionary *vevoHeaders = @{@"User-Agent": userAgent, @"Vevo-Product": vevoHeader};
+  return vevoHeaders;
 }
 
 #pragma mark - NSURLSession delegate
