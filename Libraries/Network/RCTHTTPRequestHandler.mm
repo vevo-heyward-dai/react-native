@@ -131,7 +131,7 @@ RCT_EXPORT_MODULE()
   vevoHeader = [vevoHeader stringByAppendingString:vNumber];
   
   if ([[NSUserDefaults standardUserDefaults] boolForKey:@"TestUserUsesStagingApi"]) {
-    vevoHeader = [vevoHeader stringByAppendingString:@".staging/"];
+    vevoHeader = [vevoHeader stringByAppendingString:@".stg/"];
   } else {
     vevoHeader = [vevoHeader stringByAppendingString:@"/"];
   }
